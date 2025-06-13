@@ -7,7 +7,6 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-# expose the backend port 
 EXPOSE 5000
 
 CMD ["npm", "start"]
