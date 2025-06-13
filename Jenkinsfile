@@ -134,6 +134,53 @@ pipeline{
                 }
             }
         }
+        stage("Update K8s Manifests"){
+            when {
+                anyOf {
+                    environment name: 'BUILD_FRONTEND', value: 'true'
+                    environment name: 'BUILD_BACKEND', value: 'true'
+                }
+            }
+            steps{
+                echo "========executing update k8s manifests stage========"
+                script {
+                    // Update frontend image tag if frontend was built
+                    if (env.BUILD_FRONTEND == 'true') {
+                        dir('frontend') {
+                            def frontendVersion = getVersionFromPackageJson()
+                            def newFrontendImage = "khaledhawil/my-app:itiFront-${frontendVersion}"
+                            
+                            sh """
+                                sed -i 's|image: khaledhawil/my-app:itiFront-.*|image: ${newFrontendImage}|g' ../k8s/frontend.yaml
+                                echo "Updated frontend image to: ${newFrontendImage}"
+                            """
+                        }
+                    }
+                    
+                    // Update backend image tag if backend was built
+                    if (env.BUILD_BACKEND == 'true') {
+                        dir('backend') {
+                            def backendVersion = getVersionFromPackageJson()
+                            def newBackendImage = "khaledhawil/my-app:itiBack-${backendVersion}"
+                            
+                            sh """
+                                sed -i 's|image: khaledhawil/my-app:itiBack-.*|image: ${newBackendImage}|g' ../k8s/backend.yaml
+                                echo "Updated backend image to: ${newBackendImage}"
+                            """
+                        }
+                    }
+                    
+                    // Commit and push the updated K8s manifests for GitOps
+                    sh """
+                        git config --global user.email "jenkins@devops.local"
+                        git config --global user.name "Jenkins"
+                        git add k8s/frontend.yaml k8s/backend.yaml
+                        git diff --staged --quiet || git commit -m "Update K8s image tags - Build #${env.BUILD_NUMBER}"
+                        echo "K8s manifests updated with new image tags"
+                    """
+                }
+            }
+        }
     }
     post{
         always{
