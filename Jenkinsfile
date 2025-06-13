@@ -73,7 +73,10 @@ pipeline{
                 script {
                     dir('backend'){
                     def version = getVersionFromPackageJson()
-                    buildImage "khaledhawil/my-app:itiBack-${version}"
+                    def buildTag = "${version}-build.${env.BUILD_NUMBER}"
+                    echo "Building backend image with tag: ${buildTag}"
+                    buildImage "khaledhawil/my-app:itiBack-${buildTag}"
+                    env.BACKEND_IMAGE_TAG = buildTag
                     }
                 }
             }
@@ -89,7 +92,10 @@ pipeline{
                 script {
                     dir('frontend') {
                         def version = getVersionFromPackageJson()
-                        buildImage "khaledhawil/my-app:itiFront-${version}"
+                        def buildTag = "${version}-build.${env.BUILD_NUMBER}"
+                        echo "Building frontend image with tag: ${buildTag}"
+                        buildImage "khaledhawil/my-app:itiFront-${buildTag}"
+                        env.FRONTEND_IMAGE_TAG = buildTag
                     }
                 }
             }
@@ -111,10 +117,9 @@ pipeline{
             steps{
                 echo "========executing push frontend image stage========"
                 script {
-                    dir('frontend') {
-                    def version = getVersionFromPackageJson()
-                    dockerPush "khaledhawil/my-app:itiFront-${version}"
-                    }
+                    def buildTag = env.FRONTEND_IMAGE_TAG
+                    echo "Pushing frontend image with tag: ${buildTag}"
+                    dockerPush "khaledhawil/my-app:itiFront-${buildTag}"
                 }
             }
         }
@@ -127,10 +132,9 @@ pipeline{
             steps{
                 echo "========executing push backend image stage========"
                 script {
-                    dir('backend') {
-                    def version = getVersionFromPackageJson()
-                    dockerPush "khaledhawil/my-app:itiBack-${version}"
-                    }
+                    def buildTag = env.BACKEND_IMAGE_TAG
+                    echo "Pushing backend image with tag: ${buildTag}"
+                    dockerPush "khaledhawil/my-app:itiBack-${buildTag}"
                 }
             }
         }
@@ -150,46 +154,42 @@ pipeline{
                     
                     // Update frontend image tag if frontend was built
                     if (env.BUILD_FRONTEND == 'true') {
-                        dir('frontend') {
-                            def frontendVersion = getVersionFromPackageJson()
-                            def newFrontendImage = "khaledhawil/my-app:itiFront-${frontendVersion}"
-                            
-                            echo "Current frontend version: ${frontendVersion}"
-                            echo "New frontend image: ${newFrontendImage}"
-                            
-                            // Show current content before update
-                            sh "echo 'Current frontend.yaml content:' && grep 'image:' ../k8s/frontend.yaml"
-                            
-                            sh """
-                                sed -i 's|image: khaledhawil/my-app:itiFront-.*|image: ${newFrontendImage}|g' ../k8s/frontend.yaml
-                                echo "Updated frontend image to: ${newFrontendImage}"
-                            """
-                            
-                            // Show content after update
-                            sh "echo 'Updated frontend.yaml content:' && grep 'image:' ../k8s/frontend.yaml"
-                        }
+                        def frontendBuildTag = env.FRONTEND_IMAGE_TAG
+                        def newFrontendImage = "khaledhawil/my-app:itiFront-${frontendBuildTag}"
+                        
+                        echo "Frontend build tag: ${frontendBuildTag}"
+                        echo "New frontend image: ${newFrontendImage}"
+                        
+                        // Show current content before update
+                        sh "echo 'Current frontend.yaml content:' && grep 'image:' k8s/frontend.yaml"
+                        
+                        sh """
+                            sed -i 's|image: khaledhawil/my-app:itiFront-.*|image: ${newFrontendImage}|g' k8s/frontend.yaml
+                            echo "Updated frontend image to: ${newFrontendImage}"
+                        """
+                        
+                        // Show content after update
+                        sh "echo 'Updated frontend.yaml content:' && grep 'image:' k8s/frontend.yaml"
                     }
                     
                     // Update backend image tag if backend was built
                     if (env.BUILD_BACKEND == 'true') {
-                        dir('backend') {
-                            def backendVersion = getVersionFromPackageJson()
-                            def newBackendImage = "khaledhawil/my-app:itiBack-${backendVersion}"
-                            
-                            echo "Current backend version: ${backendVersion}"
-                            echo "New backend image: ${newBackendImage}"
-                            
-                            // Show current content before update
-                            sh "echo 'Current backend.yaml content:' && grep 'image:' ../k8s/backend.yaml"
-                            
-                            sh """
-                                sed -i 's|image: khaledhawil/my-app:itiBack-.*|image: ${newBackendImage}|g' ../k8s/backend.yaml
-                                echo "Updated backend image to: ${newBackendImage}"
-                            """
-                            
-                            // Show content after update
-                            sh "echo 'Updated backend.yaml content:' && grep 'image:' ../k8s/backend.yaml"
-                        }
+                        def backendBuildTag = env.BACKEND_IMAGE_TAG
+                        def newBackendImage = "khaledhawil/my-app:itiBack-${backendBuildTag}"
+                        
+                        echo "Backend build tag: ${backendBuildTag}"
+                        echo "New backend image: ${newBackendImage}"
+                        
+                        // Show current content before update
+                        sh "echo 'Current backend.yaml content:' && grep 'image:' k8s/backend.yaml"
+                        
+                        sh """
+                            sed -i 's|image: khaledhawil/my-app:itiBack-.*|image: ${newBackendImage}|g' k8s/backend.yaml
+                            echo "Updated backend image to: ${newBackendImage}"
+                        """
+                        
+                        // Show content after update
+                        sh "echo 'Updated backend.yaml content:' && grep 'image:' k8s/backend.yaml"
                     }
                     
                     // Show git status

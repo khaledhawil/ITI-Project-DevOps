@@ -5,14 +5,15 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install all dependencies
-RUN npm ci
+RUN npm install
 
 COPY . .
 
 # Set environment variables to disable strict CI checks and source maps
 ENV CI=false
 ENV GENERATE_SOURCEMAP=false
+ENV NODE_OPTIONS=--openssl-legacy-provider
 
 EXPOSE 3000
-# Use node directly to avoid NODE_OPTIONS restriction
-CMD ["sh", "-c", "node --openssl-legacy-provider ./node_modules/.bin/react-scripts start"]
+# Use react-scripts start normally
+CMD ["npm", "start"]

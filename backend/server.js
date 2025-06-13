@@ -8,7 +8,7 @@ import productRoute from './routes/productRoute';
 import orderRoute from './routes/orderRoute';
 import uploadRoute from './routes/uploadRoute';
 
-// Updated: Backend server with improved Docker support
+// Updated: Backend server with improved Docker support // 
 const mongodbUrl = process.env.MONGODB_URI || 'mongodb://localhost:27017/amazona';
 console.log('→ connecting to MongoDB at:', mongodbUrl);
 mongoose
