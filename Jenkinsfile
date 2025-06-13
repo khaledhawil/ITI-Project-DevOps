@@ -218,7 +218,7 @@ pipeline{
                                 
                                 # Push changes to remote repository
                                 echo "Pushing changes to remote repository..."
-                                git push origin HEAD:main || git push origin HEAD:master
+                                git push origin HEAD:master
                                 echo "Successfully pushed K8s manifest updates to repository"
                             fi
                         """
@@ -375,7 +375,7 @@ pipeline{
                 {
                     "embeds": [
                         {
-                            "title": "⚠️ Pipeline Build Unstable",
+                            "title": "Pipeline Build Unstable",
                             "description": "Build completed with warnings for: ${changesText}",
                             "color": 16776960,
                             "timestamp": "${new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'")}",

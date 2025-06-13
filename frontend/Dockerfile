@@ -12,8 +12,8 @@ COPY . .
 # Set environment variables to disable strict CI checks and source maps
 ENV CI=false
 ENV GENERATE_SOURCEMAP=false
-ENV NODE_OPTIONS=--openssl-legacy-provider
 
 EXPOSE 3000
-# Use react-scripts start normally
-CMD ["npm", "start"]
+
+# Custom start script to handle NODE_OPTIONS
+CMD ["sh", "-c", "NODE_OPTIONS=--openssl-legacy-provider npm start"]
