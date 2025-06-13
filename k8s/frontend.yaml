@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: khaledhawil/my-app:itiFront-0.1.1-build.16
+        image: khaledhawil/my-app:itiFront-0.1.1-build.18
         ports:
         - containerPort: 3000
         env:
