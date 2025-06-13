@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: abdoelshahat/amazona-backend:latest
+        image: khaledhawil/my-app:itiBack-latest
         ports:
         - containerPort: 5000
         env:
