@@ -214,7 +214,7 @@ pipeline{
                                 echo "K8s manifests committed with new image tags"
                                 
                                 # Set up authentication for git push
-                                git remote set-url origin https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/your-username/ITI-Project.git
+                                git remote set-url origin https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/khaledhawil/ITI-Project-DevOps.git
                                 
                                 # Push changes to remote repository
                                 echo "Pushing changes to remote repository..."
