@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:14-alpine
 
 WORKDIR /app
 
@@ -15,8 +15,10 @@ ENV GENERATE_SOURCEMAP=false
 
 EXPOSE 3000
 
-# Use production-ready nginx build
+# Use production-ready nginx build - set legacy OpenSSL via environment
+ENV NODE_OPTIONS=--openssl-legacy-provider
 RUN npm run build
+ENV NODE_OPTIONS=
 
 # Use nginx to serve the built files
 FROM nginx:alpine
