@@ -1,6 +1,11 @@
 {
-  "name": "frontend",
-  "proxy": "http://backend:5000",
+  "name": "fronte  "scripts": {
+    "start": "react-scripts start",
+    "build": "node --openssl-legacy-provider node_modules/.bin/react-scripts build",
+    "build:docker": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },"proxy": "http://backend:5000",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -19,7 +24,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "CI=false NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
+    "build": "CI=false node --openssl-legacy-provider node_modules/.bin/react-scripts build",
     "build:docker": "CI=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

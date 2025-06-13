@@ -15,10 +15,8 @@ ENV GENERATE_SOURCEMAP=false
 
 EXPOSE 3000
 
-# Use production-ready nginx build - set legacy OpenSSL via environment
-ENV NODE_OPTIONS=--openssl-legacy-provider
-RUN npm run build:docker
-ENV NODE_OPTIONS=
+# Use production-ready nginx build - run with legacy OpenSSL directly
+RUN node --openssl-legacy-provider node_modules/.bin/react-scripts build
 
 # Use nginx to serve the built files
 FROM nginx:alpine
