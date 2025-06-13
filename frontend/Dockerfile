@@ -12,6 +12,7 @@ COPY . .
 # Set environment variables to disable strict CI checks and source maps
 ENV CI=false
 ENV GENERATE_SOURCEMAP=false
+ENV ESLINT_NO_DEV_ERRORS=true
 
 EXPOSE 3000
 

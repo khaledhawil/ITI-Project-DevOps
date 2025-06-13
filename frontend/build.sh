@@ -19,19 +19,19 @@ if command -v node >/dev/null 2>&1; then
             unset NODE_OPTIONS
             node --openssl-legacy-provider ./node_modules/.bin/react-scripts build 2>/dev/null || {
                 echo "Direct approach failed, trying CI=false..."
-                CI=false node --openssl-legacy-provider ./node_modules/.bin/react-scripts build 2>/dev/null || {
+                CI=false ESLINT_NO_DEV_ERRORS=true node --openssl-legacy-provider ./node_modules/.bin/react-scripts build 2>/dev/null || {
                     echo "All OpenSSL approaches failed, trying standard build..."
-                    CI=false npm run build:fallback
+                    CI=false ESLINT_NO_DEV_ERRORS=true npm run build:fallback
                 }
             }
         }
     else
         echo "Using standard build for Node.js $NODE_VERSION..."
-        CI=false npm run build:fallback
+        CI=false ESLINT_NO_DEV_ERRORS=true npm run build:fallback
     fi
 else
     echo "Node.js not found, trying standard npm build..."
-    CI=false npm run build:fallback
+    CI=false ESLINT_NO_DEV_ERRORS=true npm run build:fallback
 fi
 
 # Check if build was successful

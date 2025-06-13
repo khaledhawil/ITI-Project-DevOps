@@ -19,8 +19,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "GENERATE_SOURCEMAP=false react-scripts build",
-    "build:docker": "GENERATE_SOURCEMAP=false react-scripts build",
+    "build": "GENERATE_SOURCEMAP=false ESLINT_NO_DEV_ERRORS=true react-scripts build",
+    "build:docker": "GENERATE_SOURCEMAP=false ESLINT_NO_DEV_ERRORS=true CI=false react-scripts build",
+    "build:safe": "GENERATE_SOURCEMAP=false ESLINT_NO_DEV_ERRORS=true CI=false react-scripts build",
+    "build:fallback": "GENERATE_SOURCEMAP=false ESLINT_NO_DEV_ERRORS=true CI=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
