@@ -16,11 +16,7 @@ ENV GENERATE_SOURCEMAP=false
 EXPOSE 3000
 
 # Use production-ready nginx build
-# Set NODE_OPTIONS for the build process only to handle legacy OpenSSL
-ENV NODE_OPTIONS=--openssl-legacy-provider
 RUN npm run build
-# Clear NODE_OPTIONS after build
-ENV NODE_OPTIONS=
 
 # Use nginx to serve the built files
 FROM nginx:alpine
