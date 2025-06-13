@@ -15,5 +15,12 @@ ENV GENERATE_SOURCEMAP=false
 
 EXPOSE 3000
 
-# Custom start script to handle NODE_OPTIONS
-CMD ["sh", "-c", "NODE_OPTIONS=--openssl-legacy-provider npm start"]
+# Use production-ready nginx build
+RUN npm run build
+
+# Use nginx to serve the built files
+FROM nginx:alpine
+COPY --from=0 /app/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

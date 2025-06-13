@@ -1,11 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: backend-deployment
   namespace: ecommerce
   labels:
     app: backend
-    tier: backend
 spec:
   replicas: 2
   selector:
@@ -15,55 +14,91 @@ spec:
     metadata:
       labels:
         app: backend
-        tier: backend
     spec:
+      imagePullSecrets:
+      - name: dockerhub-secret
       containers:
       - name: backend
         image: khaledhawil/my-app:itiBack-1.0.3-build.16
         ports:
         - containerPort: 5000
         env:
-        - name: NODE_ENV
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: NODE_ENV
-        - name: PORT
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: PORT
         - name: MONGODB_URI
           valueFrom:
             configMapKeyRef:
-              name: app-config
+              name: ecommerce-config
               key: MONGODB_URI
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: ecommerce-config
+              key: PORT
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: ecommerce-config
+              key: NODE_ENV
         - name: JWT_SECRET
           valueFrom:
+            configMapKeyRef:
+              name: ecommerce-config
+              key: JWT_SECRET
+        - name: PAYPAL_CLIENT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: ecommerce-config
+              key: PAYPAL_CLIENT_ID
+        - name: AWS_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: ecommerce-config
+              key: AWS_REGION
+        - name: AWS_BUCKET_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: ecommerce-config
+              key: AWS_BUCKET_NAME
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
             secretKeyRef:
-              name: app-secret
-              key: jwt-secret
+              name: ecommerce-secrets
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ecommerce-secrets
+              key: AWS_SECRET_ACCESS_KEY
         resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
           limits:
-            memory: "512Mi"
-            cpu: "500m"
+            memory: "256Mi"
+            cpu: "200m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+        livenessProbe:
+          httpGet:
+            path: /api/products
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/products
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        imagePullPolicy: Always
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: backend-service
   namespace: ecommerce
-  labels:
-    app: backend
-    tier: backend
 spec:
-  type: ClusterIP
-  ports:
-  - port: 5000
-    targetPort: 5000
-    protocol: TCP
   selector:
     app: backend
+  ports:
+  - protocol: TCP
+    port: 5000
+    targetPort: 5000
+  type: ClusterIP

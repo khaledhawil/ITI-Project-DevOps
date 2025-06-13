@@ -1,11 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+  name: frontend-deployment
   namespace: ecommerce
   labels:
     app: frontend
-    tier: frontend
 spec:
   replicas: 2
   selector:
@@ -15,41 +14,51 @@ spec:
     metadata:
       labels:
         app: frontend
-        tier: frontend
     spec:
+      imagePullSecrets:
+      - name: dockerhub-secret
       containers:
       - name: frontend
-        image: khaledhawil/my-app:itiFront-0.1.1-build.18
+        image: khaledhawil/my-app:itiFront-0.1.1-build.18 # Updated with fixed nginx.conf
         ports:
-        - containerPort: 3000
+        - containerPort: 80
         env:
-        - name: NODE_ENV
-          value: "production"
-        - name: CI
-          value: "false"
-        - name: GENERATE_SOURCEMAP
-          value: "false"
+        - name: REACT_APP_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ecommerce-config
+              key: REACT_APP_API_URL
         resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
           limits:
-            memory: "512Mi"
-            cpu: "500m"
+            memory: "256Mi"
+            cpu: "200m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        imagePullPolicy: Always
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: frontend-service
   namespace: ecommerce
-  labels:
-    app: frontend
-    tier: frontend
 spec:
-  type: LoadBalancer
-  ports:
-  - port: 80
-    targetPort: 3000
-    protocol: TCP
   selector:
     app: frontend
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: NodePort

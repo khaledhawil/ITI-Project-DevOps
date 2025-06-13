@@ -1,11 +1,23 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc
+  namespace: ecommerce
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: local-storage  # Local storage for development/testing
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongodb
+  name: mongodb-deployment
   namespace: ecommerce
   labels:
     app: mongodb
-    tier: database
 spec:
   replicas: 1
   selector:
@@ -15,36 +27,49 @@ spec:
     metadata:
       labels:
         app: mongodb
-        tier: database
     spec:
       containers:
       - name: mongodb
-        image: mongo:5.0
+        image: mongo:4.4
         ports:
         - containerPort: 27017
         env:
         - name: MONGO_INITDB_ROOT_USERNAME
           valueFrom:
             secretKeyRef:
-              name: mongodb-secret
-              key: mongodb-username
+              name: ecommerce-secrets
+              key: MONGO_INITDB_ROOT_USERNAME
         - name: MONGO_INITDB_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mongodb-secret
-              key: mongodb-password
-        - name: MONGO_INITDB_DATABASE
-          value: amazona
+              name: ecommerce-secrets
+              key: MONGO_INITDB_ROOT_PASSWORD
         volumeMounts:
         - name: mongodb-storage
           mountPath: /data/db
         resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
           limits:
             memory: "512Mi"
-            cpu: "500m"
+            cpu: "200m"
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+        livenessProbe:
+          exec:
+            command:
+            - mongo
+            - --eval
+            - "db.adminCommand('ping')"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - mongo
+            - --eval
+            - "db.adminCommand('ping')"
+          initialDelaySeconds: 5
+          periodSeconds: 5
       volumes:
       - name: mongodb-storage
         persistentVolumeClaim:
@@ -55,13 +80,11 @@ kind: Service
 metadata:
   name: mongodb-service
   namespace: ecommerce
-  labels:
-    app: mongodb
 spec:
-  type: ClusterIP
-  ports:
-  - port: 27017
-    targetPort: 27017
-    protocol: TCP
   selector:
     app: mongodb
+  ports:
+  - protocol: TCP
+    port: 27017
+    targetPort: 27017
+  type: ClusterIP
