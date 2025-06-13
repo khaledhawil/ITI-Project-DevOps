@@ -8,5 +8,5 @@ RUN npm ci
 
 COPY . .
 EXPOSE 5000
-
+# start the server
 CMD ["npm", "start"]
