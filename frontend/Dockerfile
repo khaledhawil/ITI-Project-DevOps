@@ -17,7 +17,7 @@ EXPOSE 3000
 
 # Use production-ready nginx build - set legacy OpenSSL via environment
 ENV NODE_OPTIONS=--openssl-legacy-provider
-RUN npm run build
+RUN npm run build:docker
 ENV NODE_OPTIONS=
 
 # Use nginx to serve the built files
