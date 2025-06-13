@@ -1,4 +1,4 @@
-FROM node:14-alpine
+FROM node:16.14-alpine
 
 WORKDIR /app
 
@@ -15,8 +15,9 @@ ENV GENERATE_SOURCEMAP=false
 
 EXPOSE 3000
 
-# Use production-ready nginx build - run with legacy OpenSSL directly
-RUN node --openssl-legacy-provider node_modules/.bin/react-scripts build
+# Use production-ready nginx build - use build script for compatibility
+COPY build.sh ./
+RUN chmod +x build.sh && npm run build:docker
 
 # Use nginx to serve the built files
 FROM nginx:alpine
